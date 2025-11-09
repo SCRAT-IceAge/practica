@@ -1,0 +1,128 @@
+<!--<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usuarios</title>
+</head>
+<body>
+  <h1>Lista de usuarios</h1>
+  <ul id="lista"></ul>
+
+  <script>
+    fetch("http://localhost:3060/usuarios")
+      .then(res => res.json())
+      .then(data => {
+        const lista = document.getElementById("lista");
+        data.forEach(u => {
+          const li = document.createElement("li");
+          li.textContent = `${u.nombre} (${u.email})`;
+          lista.appendChild(li);
+        });
+      })
+       .catch(err => console.error("Error al obtener usuarios:", err));
+  </script>
+</body>
+</html> --->
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usuarios</title>
+</head>
+<body>
+  <h1>Lista de usuarios</h1>
+
+  <ul id="lista"></ul>
+
+  <h2>Agregar nuevo usuario</h2>
+  <form id="form">
+    <input type="text" id="nombre" placeholder="Nombre" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <button type="submit">Guardar</button>
+  </form>
+
+  <script>
+    const URL = "http://localhost:3060/usuarios";
+
+    // --- Función para mostrar usuarios ---
+    function cargarUsuarios() {
+      fetch(URL)
+        .then(res => res.json())
+        .then(data => {
+          const lista = document.getElementById("lista");
+          lista.innerHTML = ""; // limpiar antes de volver a mostrar
+          data.forEach(u => {
+            const li = document.createElement("li");
+            li.textContent = `${u.nombre} (${u.email})`;
+            lista.appendChild(li);
+          });
+        })
+        .catch(err => console.error("Error al obtener usuarios:", err));
+    }
+
+    // --- Función para enviar nuevos usuarios ---
+    const form = document.getElementById("form");
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre").value;
+      const email = document.getElementById("email").value;
+
+      fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, email })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Usuario agregado:", data);
+        form.reset();
+        cargarUsuarios(); // refresca la lista
+      })
+      .catch(err => console.error("Error al agregar usuario:", err));
+    });
+
+    // Cargar usuarios al iniciar
+function cargarUsuarios() {
+  fetch(URL)
+    .then(res => res.json())
+    .then(data => {
+      const lista = document.getElementById("lista");
+      lista.innerHTML = ""; // limpiar antes de volver a mostrar
+
+      data.forEach(u => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          ${u.nombre} (${u.email})
+          <button onclick="eliminarusuario(${u.id})">Eliminar</button>
+        `;
+        lista.appendChild(li);
+      });
+    })
+    .catch(err => console.error("Error al obtener usuarios:", err));
+}
+
+
+
+function eliminarUsuario(id) {
+  if (confirm("¿Seguro que deseas eliminar este usuario?")) {
+    fetch(`${URL}/${id}`, {
+      method: "DELETE"
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Error al eliminar");
+        return res.json();
+      })
+      .then(() => {
+        alert("Usuario eliminado correctamente");
+        cargarUsuarios(); // refresca la lista
+      })
+      .catch(err => console.error("Error al eliminar usuario:", err));
+  }
+}
+
+  </script>
+</body>
+</html>
